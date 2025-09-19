@@ -1,0 +1,2 @@
+Genre: Platform Adventure
+Logline: A platform adventure game with 2 characters with special abilities used to defeat enemies and reach their goal area. 
