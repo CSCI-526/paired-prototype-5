@@ -1,45 +1,41 @@
 using UnityEngine;
 
-// 确保游戏对象上有一个 Rigidbody2D 组件
+
 [RequireComponent(typeof(Rigidbody2D))]
 public class OvalPlayerControl : MonoBehaviour
 {
-    // 公开变量，用于在 Inspector 窗口中设置移动速度
+    //set the movement speed in the Inspector window
     public float speed = 5.0f;
 
     public float jumpForce = 10.0f;
 
-    //二段跳代码
-    public int maxJumps = 3; // 新增：最大跳跃次数（设为2就是二段跳）
-    private int jumpCount; // 新增：当前剩余的跳跃次数
+    //double jump code
+    public int maxJumps = 3; 
+    private int jumpCount; 
 
-    // 私有变量，用于引用 Rigidbody2D 组件
     private Rigidbody2D rb;
 
 
-    // Start is called before the first frame update
     private void Start()
     {
-        // 获取附加到此游戏对象的 Rigidbody2D 组件
+        // get the Rigidbody2D component attached to this game object
         rb = GetComponent<Rigidbody2D>();
-        jumpCount = maxJumps; // 游戏开始时，充满跳跃次数
+        jumpCount = maxJumps; // when the game starts, the jump count is full
     }
     
 
-    // Update is called once per frame
     void Update()
     {
-        // 检查玩家是否按下了空格键
-        // 并且剩余跳跃次数 > 0
+
         if (Input.GetKeyDown(KeyCode.UpArrow) && jumpCount > 0)
         {
-            // 1. 在施加力之前，先把当前的垂直速度清零
+            // 1. before applying force, first clear the current vertical velocity
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, 0);
 
-            // 2. 施加一个向上的瞬间冲力
+            // 2. apply an upward instantaneous force
             rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
             
-            // 3. 消耗一次跳跃次数
+            // 3. consume one jump count
             jumpCount--;
         }
     }
@@ -47,34 +43,34 @@ public class OvalPlayerControl : MonoBehaviour
     // Handle physics-based movement.
     private void FixedUpdate()
     {
-        // 1. 获取输入
-        // 创建一个浮点数来存储水平移动方向 (-1 for left, 1 for right, 0 for none)
+        // 1. get the input
+        // create a float to store the horizontal movement direction (-1 for left, 1 for right, 0 for none)
         float moveHorizontal = 0f;
 
-        // 检测是否按下了右箭头键
+        // check if the right arrow key is pressed
         if (Input.GetKey(KeyCode.RightArrow))
         {
             moveHorizontal = 1f;
         }
-        // 如果没有按右箭头，再检测是否按下了左箭头键
+        // check if the left arrow key is pressed
         else if (Input.GetKey(KeyCode.LeftArrow))
         {
             moveHorizontal = -1f;
         }
 
-        // 2. 应用移动
-        // 修改刚体的速度来实现移动
-        // X 轴速度 = 方向 * 速度
-        // Y 轴速度 = 保持当前的垂直速度 (这样重力才能正常工作！)
+        // 2. apply the movement
+        // modify the rigidbody's speed to implement the movement
+        // X axis speed = direction * speed
+        // Y axis speed = keep the current vertical speed (so that gravity can work!)
         rb.linearVelocity = new Vector2(moveHorizontal * speed, rb.linearVelocity.y);
     }
 
-    //跳跃次数重置
+    //reset the jump count
     private void OnCollisionEnter2D(Collision2D collision)
     {
         if (collision.gameObject.CompareTag("Ground"))
         {
-            // 当接触到地面时，重置跳跃次数
+            // when the player contacts the ground, reset the jump count
             jumpCount = maxJumps;
         }
     }

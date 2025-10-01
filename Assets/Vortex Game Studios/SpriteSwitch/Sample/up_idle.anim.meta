@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 539a6928d4fa07449ad679c61ed3f42b
+timeCreated: 1433293718
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 33054
+  packageName: Sprite Switch
+  packageVersion: 1.2
+  assetPath: Assets/Vortex Game Studios/SpriteSwitch/Sample/up_idle.anim
+  uploadId: 66460

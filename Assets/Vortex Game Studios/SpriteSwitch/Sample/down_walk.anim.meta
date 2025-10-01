@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 1508ac79138adcb47a3dac1bd30a0fc2
+timeCreated: 1433293792
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 33054
+  packageName: Sprite Switch
+  packageVersion: 1.2
+  assetPath: Assets/Vortex Game Studios/SpriteSwitch/Sample/down_walk.anim
+  uploadId: 66460

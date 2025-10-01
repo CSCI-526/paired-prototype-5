@@ -1,8 +1,9 @@
 using UnityEngine;
+using System.Collections.Generic; // We need this to use List<T>
 
 public class TwoPlayerCamera : MonoBehaviour
 {
-    // --- Settings in Inspector ---
+    // --- Settings in Inspector (No changes here) ---
     [Tooltip("The first player to follow")]
     public Transform player1;
 
@@ -36,87 +37,103 @@ public class TwoPlayerCamera : MonoBehaviour
 
     void Start()
     {
-        // Get the Camera component reference
         mainCamera = GetComponent<Camera>();
-        // Instantly set the camera's initial state to avoid a jump at the start of the game
-        SetInitialCameraState();
+        // We need to handle the initial state carefully now
+        if (player1 != null && player2 != null)
+        {
+            SetInitialCameraState();
+        }
     }
 
     void LateUpdate()
     {
-        // Ensure all required transforms have been assigned
-        if (player1 == null || player2 == null || minBounds == null || maxBounds == null)
+        // --- [CORE LOGIC CHANGE] ---
+        // Create a list to hold only the active players
+        List<Transform> activePlayers = new List<Transform>();
+        if (player1 != null && player1.gameObject.activeInHierarchy)
+        {
+            activePlayers.Add(player1);
+        }
+        if (player2 != null && player2.gameObject.activeInHierarchy)
+        {
+            activePlayers.Add(player2);
+        }
+
+        // If there are no active players, do nothing.
+        if (activePlayers.Count == 0)
         {
             return;
         }
 
-        // Calculate and smoothly set the camera's size
-        float targetSize = CalculateTargetSize();
+        // Calculate and smoothly set the camera's size and position based on the active players
+        float targetSize = CalculateTargetSize(activePlayers);
         mainCamera.orthographicSize = Mathf.Lerp(mainCamera.orthographicSize, targetSize, smoothSpeed);
-
-        // Calculate and smoothly set the camera's position, clamped within the bounds
-        Vector3 targetPosition = CalculateTargetPosition();
+        
+        Vector3 targetPosition = CalculateTargetPosition(activePlayers);
         transform.position = Vector3.Lerp(transform.position, targetPosition, smoothSpeed);
     }
     
-    // --- NEW AND REFACTORED FUNCTIONS ---
+    // --- REFACTORED FUNCTIONS ---
 
-    // Calculates the target orthographic size for the camera
-    private float CalculateTargetSize()
+    // Calculates the target orthographic size based on a list of active targets
+    private float CalculateTargetSize(List<Transform> targets)
     {
-        // Calculate the distance between players on both axes
-        float horizontalDistance = Mathf.Abs(player1.position.x - player2.position.x);
-        float verticalDistance = Mathf.Abs(player1.position.y - player2.position.y);
+        // If only one player (or none) is active, just use the minimum zoom size.
+        if (targets.Count <= 1)
+        {
+            return minSize;
+        }
         
-        // Calculate the required size to fit players based on horizontal distance and screen aspect ratio
+        // If two players are active, perform the original distance calculation
+        float horizontalDistance = Mathf.Abs(targets[0].position.x - targets[1].position.x);
+        float verticalDistance = Mathf.Abs(targets[0].position.y - targets[1].position.y);
+        
         float requiredSizeByWidth = horizontalDistance * Screen.height / Screen.width * 0.5f;
-        // Calculate the required size to fit players based on vertical distance
         float requiredSizeByHeight = verticalDistance * 0.5f;
         
-        // The final required size is the larger of the two, to ensure both axes are visible
         float requiredSize = Mathf.Max(requiredSizeByWidth, requiredSizeByHeight);
 
-        // --- [CORE LOGIC CHANGE] ---
-        // Artificially increase the required size to create a buffer zone
-        // This makes the players occupy a smaller central portion of the screen
         float buffer = 1.0f - screenEdgeBuffer;
-        if (buffer > 0.01f) // Avoid division by zero or a very small number
+        if (buffer > 0.01f)
         {
             requiredSize /= buffer;
         }
         
-        // Clamp the final size between the defined min and max values
         return Mathf.Clamp(requiredSize, minSize, maxSize);
     }
 
-    // Calculates the target position for the camera
-    private Vector3 CalculateTargetPosition()
+    // Calculates the target position based on a list of active targets
+    private Vector3 CalculateTargetPosition(List<Transform> targets)
     {
-        // Find the midpoint between the two players
-        Vector3 centerPoint = (player1.position + player2.position) / 2f;
+        Vector3 centerPoint;
         
-        // Use the current camera size to calculate the clamping boundaries
+        // If only one player is active, the center point is that player's position.
+        if (targets.Count == 1)
+        {
+            centerPoint = targets[0].position;
+        }
+        // If two (or more) players are active, find their average center point.
+        else
+        {
+            // For this project, we know it's only two, so we can be specific.
+            centerPoint = (targets[0].position + targets[1].position) / 2f;
+        }
+
+        // The rest of the clamping logic remains the same
         float camHalfHeight = mainCamera.orthographicSize;
         float camHalfWidth = camHalfHeight * mainCamera.aspect;
         
-        // Clamp the center point to stay within the level bounds
         float clampedX = Mathf.Clamp(centerPoint.x, minBounds.position.x + camHalfWidth, maxBounds.position.x - camHalfWidth);
         float clampedY = Mathf.Clamp(centerPoint.y, minBounds.position.y + camHalfHeight, maxBounds.position.y - camHalfHeight);
         
-        // Return the final clamped position with the Z offset
         return new Vector3(clampedX, clampedY, zOffset);
     }
-
-    // A function to instantly set the camera's state at the beginning of the game
+    
+    // SetInitialCameraState needs to be updated to use a list as well
     private void SetInitialCameraState()
     {
-        if (player1 == null || player2 == null || minBounds == null || maxBounds == null)
-        {
-            Debug.LogError("Camera targets or bounds not set!");
-            return;
-        }
-
-        mainCamera.orthographicSize = CalculateTargetSize();
-        transform.position = CalculateTargetPosition();
+        List<Transform> initialPlayers = new List<Transform> { player1, player2 };
+        mainCamera.orthographicSize = CalculateTargetSize(initialPlayers);
+        transform.position = CalculateTargetPosition(initialPlayers);
     }
 }
