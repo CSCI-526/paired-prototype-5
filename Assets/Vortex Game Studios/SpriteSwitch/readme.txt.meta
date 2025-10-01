@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: cddfbc52f90826a47a7ef06356c3a41f
+timeCreated: 1433297773
+licenseType: Store
+TextScriptImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 33054
+  packageName: Sprite Switch
+  packageVersion: 1.2
+  assetPath: Assets/Vortex Game Studios/SpriteSwitch/readme.txt
+  uploadId: 66460

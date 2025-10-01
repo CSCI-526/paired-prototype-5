@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: d996f13083732e04e94d2cf1af03f943
+timeCreated: 1433293763
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 33054
+  packageName: Sprite Switch
+  packageVersion: 1.2
+  assetPath: Assets/Vortex Game Studios/SpriteSwitch/Sample/up_walk.anim
+  uploadId: 66460

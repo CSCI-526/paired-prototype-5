@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 54d87721d8123ea49ab1c57b52e42c96
+timeCreated: 1433293810
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 33054
+  packageName: Sprite Switch
+  packageVersion: 1.2
+  assetPath: Assets/Vortex Game Studios/SpriteSwitch/Sample/left_walk.anim
+  uploadId: 66460

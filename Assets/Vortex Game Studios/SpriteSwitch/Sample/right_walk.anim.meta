@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 0406e3c2a32ee694e87559bd134b5e59
+timeCreated: 1433293841
+licenseType: Store
+NativeFormatImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 33054
+  packageName: Sprite Switch
+  packageVersion: 1.2
+  assetPath: Assets/Vortex Game Studios/SpriteSwitch/Sample/right_walk.anim
+  uploadId: 66460
