@@ -9,6 +9,10 @@ public class EnemyController : MonoBehaviour
     [Header("Movement Parameters")]
     public float patrolSpeed = 2f; // patrol speed
     public float chaseSpeed = 5f;  // chase speed
+    [Tooltip("The minimum rotation angle allowed for the enemy.")]
+    public float minRotationAngle = -45f;
+    [Tooltip("The maximum rotation angle allowed for the enemy.")]
+    public float maxRotationAngle = 45f;
 
     [Header("Detection Range")]
     public float activationRange = 8f; // the distance to activate and start chasing
@@ -18,7 +22,6 @@ public class EnemyController : MonoBehaviour
     public Transform patrolPointA; // patrol point A
     public Transform patrolPointB; // patrol point B
 
-    // --- private state variables ---
     private enum State
     {
         Dormant,    
@@ -29,36 +32,29 @@ public class EnemyController : MonoBehaviour
     private State currentState;
     private Transform currentPatrolTarget;
 
-    // --- initialization ---
     void Start()
     {
-        // at the beginning, the enemy is in the dormant state
         currentState = State.Dormant;
 
-        // ensure the devil horns are hidden at the beginning
         if (devilHorns != null)
         {
             devilHorns.SetActive(false);
         }
-
-        // set the first patrol target, but it will not move at the beginning
+        
         currentPatrolTarget = patrolPointA;
     }
 
-    // --- update every frame ---
     void Update()
     {
-        // according to the current state, execute different logic
         switch (currentState)
         {
             case State.Dormant:
-                // in the dormant state, only check if it needs to be activated
                 CheckForActivation();
                 break;
 
             case State.Patrolling:
                 HandlePatrolling();
-                CheckForPlayer(); // while patrolling, also check if it can find the player
+                CheckForPlayer();
                 break;
 
             case State.Chasing:
@@ -68,43 +64,38 @@ public class EnemyController : MonoBehaviour
         }
     }
 
-    // --- the core logic of state switching ---
     private void SwitchState(State newState)
     {
-        if (currentState == newState) return; // if the state is not changed, do nothing
+        if (currentState == newState) return;
 
+        // When we stop chasing, reset rotation to 0
+        if (newState != State.Chasing)
+        {
+            transform.rotation = Quaternion.identity; // Quaternion.identity is the same as (0,0,0) rotation
+        }
+        
         currentState = newState;
     }
     
-    // --- check if it needs to be activated ---
     private void CheckForActivation()
     {
         if (player == null) return;
-
-        // calculate the distance to the player
         float distanceToPlayer = Vector2.Distance(transform.position, player.position);
-
-        // if the player is in the activation range, permanently activate and switch to the chasing state
         if (distanceToPlayer <= activationRange)
         {
             Activate();
         }
     }
     
-    // --- the logic of permanently activating ---
     private void Activate()
     {
-        // show the devil horns
         if (devilHorns != null)
         {
             devilHorns.SetActive(true);
         }
-        
-        // switch to the chasing state
         SwitchState(State.Chasing);
     }
 
-    // --- the logic of patrolling ---
     private void HandlePatrolling()
     {
         if (currentPatrolTarget == null) return;
@@ -116,44 +107,44 @@ public class EnemyController : MonoBehaviour
         }
     }
 
-    // --- the logic of chasing ---
     private void HandleChasing()
     {
         if (player == null) return;
+        
+        // --- Step 1: Handle Movement ---
         transform.position = Vector2.MoveTowards(transform.position, player.position, chaseSpeed * Time.deltaTime);
+
+        // --- Step 2: Handle Rotation with Constraints ---
+        Vector2 directionToPlayer = player.position - transform.position;
+        float angle = Mathf.Atan2(directionToPlayer.y, directionToPlayer.x) * Mathf.Rad2Deg;
+        float clampedAngle = Mathf.Clamp(angle, minRotationAngle, maxRotationAngle);
+        transform.rotation = Quaternion.Euler(0f, 0f, clampedAngle);
     }
 
-    // --- check if it can find the player ---
     private void CheckForPlayer()
     {
         if (player == null) return;
         float distanceToPlayer = Vector2.Distance(transform.position, player.position);
-
-        // here use the activationRange, which means once activated, its detection range is this value
         if (distanceToPlayer <= activationRange)
         {
             SwitchState(State.Chasing);
         }
     }
-
-    // --- check if the player is lost ---
+    
     private void CheckIfPlayerLost()
     {
         if (player == null) return;
         float distanceToPlayer = Vector2.Distance(transform.position, player.position);
-
         if (distanceToPlayer > losePlayerRange)
         {
             SwitchState(State.Patrolling);
         }
     }
     
-    // (optional) draw the detection range in the Scene view, for debugging
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.cyan;
         Gizmos.DrawWireSphere(transform.position, activationRange);
-
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, losePlayerRange);
     }
